@@ -2,7 +2,7 @@
   "name": "bse_summary",
   "version": "0.1.0",
   "private": true,
-  "homepage": "https://sudir319.github.io/bse_summary",
+  "homepage": ".",
   "dependencies": {
     "@testing-library/jest-dom": "^5.16.1",
     "@testing-library/react": "^11.2.7",
@@ -18,7 +18,7 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "predeploy": "npm run build",
-    "deploy": "gh-pages -d public"
+    "deploy": "gh-pages -d build"
   },
   "eslintConfig": {
     "extends": [
