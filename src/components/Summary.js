@@ -25,7 +25,7 @@ class Summary extends Component {
         }
         else
         {
-            content = "Loading...!!!";
+            content = <tr><td colspan='5'>Loading...!!!</td></tr>;
         }
         return <React.Fragment>{content}</React.Fragment>;
     }

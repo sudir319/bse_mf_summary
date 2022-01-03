@@ -1,15 +1,29 @@
 import React, {Component} from 'react';
-import IndexDetails from './IndexDetails';
+import Summary from './Summary';
 class Dashboard extends Component {
-    constructor(props) {
+    constructor(props){
         super(props);
         this.state = {
-            codes : [16, 22, 87, 85, 93, 81, 82, 114, 79, 86, 42, 96, 90, 91, 92, 83, 84, 35, 37, 69]
+            categories : [1, 2, 3, 4, 5, 6]
         }
     }
     render() { 
-        const codesDetails = this.state.codes.map(eachCode => <React.Fragment key={eachCode}><IndexDetails code={eachCode} /><tr><td colspan="2">&nbsp;</td></tr></React.Fragment>);
-        return <table><tbody>{codesDetails}</tbody></table>;
+        return <table border="1" style={{borderCollapse:'collapse'}}>
+            <thead>
+                <tr>
+                    <th>Index</th>
+                    <th><nobr>Prev Close</nobr></th>
+                    <th><nobr>Current Value</nobr></th>
+                    <th>Change</th>
+                    <th><nobr>Change %</nobr></th>
+                </tr>
+            </thead>
+            <tbody>
+            {
+            this.state.categories.map(eachCategory => <Summary key={eachCategory} category={eachCategory}/>)
+            }
+            </tbody>
+        </table>;
     }
 }
  
