@@ -13,7 +13,7 @@ class Dashboard extends Component {
         return <table border="1" style={{borderCollapse:'collapse'}}>
             <thead>
                 <tr>
-                    <th>Index Id</th>
+                    <th><nobr>Index Id</nobr></th>
                     <th>Index</th>
                     <th><nobr>Prev Close</nobr></th>
                     <th><nobr>Current Value</nobr></th>
