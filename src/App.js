@@ -1,11 +1,10 @@
-import Tabs from './components/Tabs';
 import './App.css';
-import Dashboard from './components/bse_summary/Dashboard';
+import SummaryTabs from './components/SummaryTabs';
 
 function App() {
   return (
     <div className="App">
-      <Tabs/>
+      <SummaryTabs/>
     </div>
   );
 }

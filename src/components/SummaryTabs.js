@@ -1,6 +1,6 @@
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 import 'react-tabs/style/react-tabs.css';
-import Dashboard from './bse_summary/Dashboard';
+import DayTabs from './bse_summary/DayTabs';
 
 export default () => (
   <Tabs>
@@ -10,7 +10,7 @@ export default () => (
     </TabList>
 
     <TabPanel>
-        <Dashboard/>
+        <DayTabs/>
     </TabPanel>
     <TabPanel>
       <h2>Not Implemented</h2>
