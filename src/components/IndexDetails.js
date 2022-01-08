@@ -19,8 +19,15 @@ const IndexDetails = ({duration, indexCode, data}) => {
     {
         const {Scrip, PreClose, LatestVal} = data;
         const Chg = (parseFloat(LatestVal) - parseFloat(PreClose)).toFixed(2);
-        const ChgPer = ((Chg * 100)/parseFloat(LatestVal)).toFixed(2);
+        let ChgPer = null;
         const color = Chg > 0 ? "green" : "red";
+        if(Chg <= 0)
+        {
+            ChgPer = ((Chg * 100)/parseFloat(LatestVal)).toFixed(2);
+        }
+        else {
+            ChgPer = ((Chg * 100)/parseFloat(PreClose)).toFixed(2);
+        }
         content = (<tr>
             <td align="align"><nobr>{indexCode}</nobr></td>
             <td align="left"><nobr>{Scrip}</nobr></td>
