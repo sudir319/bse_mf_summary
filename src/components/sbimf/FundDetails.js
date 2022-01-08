@@ -79,7 +79,7 @@ class FundDetails extends Component {
                     {index > 1 ? <font color = {eachData < 0 ? "red" : "green"}>{eachData}</font> : eachData}
                 </td> 
             );
-            content = <tr>{content}</tr>
+            content = <tr key={this.state.data[1]}>{content}</tr>
         }
         return (content);
     }
