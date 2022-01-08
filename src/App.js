@@ -1,10 +1,10 @@
 import './App.css';
-import DayTabs from './components/DayTabs';
+import TabsList from './components/TabsList';
 
 function App() {
   return (
     <div className="App">
-      <DayTabs/>
+      <TabsList/>
     </div>
   );
 }

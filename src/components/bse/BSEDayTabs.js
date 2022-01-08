@@ -3,7 +3,7 @@ import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 import 'react-tabs/style/react-tabs.css';
 import Dashboard from './Dashboard';
 
-const dayTabs = () => (
+const BSEDayTabs = () => (
   <Tabs>
     <TabList>
       <Tab>1D</Tab>
@@ -31,4 +31,4 @@ const dayTabs = () => (
   </Tabs>
 );
 
-export default dayTabs;
+export default BSEDayTabs;
