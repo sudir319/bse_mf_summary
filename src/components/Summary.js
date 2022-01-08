@@ -9,7 +9,7 @@ class Summary extends Component {
         }
     }
     componentDidMount() {
-        if(this.props.duration == '1D')
+        if(this.props.duration === '1D')
         {
             var apiLink = "https://api.bseindia.com/BseIndiaAPI/api/MktCapBoard/w?cat=" + this.props.category + "&type=2";
             fetch(apiLink)
@@ -20,7 +20,7 @@ class Summary extends Component {
         }
         else
         {
-            var apiLink = "https://api.bseindia.com/BseIndiaAPI/api/SensexGraphData/w?index=" + this.props.indexCode + "&flag=" + this.props.duration + "&sector=&seriesid=R&frd=null&tod=null";
+            apiLink = "https://api.bseindia.com/BseIndiaAPI/api/SensexGraphData/w?index=" + this.props.indexCode + "&flag=" + this.props.duration + "&sector=&seriesid=R&frd=null&tod=null";
             fetch(apiLink)
             .then(response => response.json())
             .then(response => JSON.parse(response.substring(0, response.indexOf("#@#"))))
@@ -34,14 +34,14 @@ class Summary extends Component {
         }
     }
 
-    render() { 
+    render() {
         const data = this.state.data;
         const error = this.state.error;
         var content = null;
 
         if(!error && data)
         {
-            content = this.props.duration == '1D'
+            content = this.props.duration === '1D'
             ? data.map((eachIndexDetails, index) => <IndexDetails key={index} duration={this.props.duration} data={eachIndexDetails}/>)
             : <IndexDetails duration={this.props.duration} indexCode={this.props.indexCode} data={data}/>
         }

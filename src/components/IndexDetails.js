@@ -2,7 +2,7 @@ import React from 'react';
 const IndexDetails = ({duration, indexCode, data}) => {
     let content = null;
 
-    if(duration == '1D')
+    if(duration === '1D')
     {
         const {ScripFlagCode, IndexName, Prev_Close, Curvalue, Chg, ChgPer} = data;
         const color = Chg > 0 ? "green" : "red";
