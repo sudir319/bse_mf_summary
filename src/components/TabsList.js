@@ -6,7 +6,7 @@ import MFDashboard from './sbimf/MFDashboard';
 const TabsList = () => (
   <Tabs>
     <TabList>
-      <Tab>BSE</Tab>
+      <Tab><nobr>BSE Indices</nobr></Tab>
       <Tab><nobr>SBI MF</nobr></Tab>
     </TabList>
 
