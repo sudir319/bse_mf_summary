@@ -14,8 +14,16 @@ class FundDetails extends Component {
         var oneWeekBackDate = today;
 
         today = new Date();
+        today.setMonth(today.getDate() - 15);
+        var twoWeekBackDate = today;
+
+        today = new Date();
         today.setMonth(today.getMonth() - 1);
         var oneMonthBackDate = today;
+
+        today = new Date();
+        today.setMonth(today.getMonth() - 2);
+        var twoMonthBackDate = today;
 
         today = new Date();
         today.setMonth(today.getMonth() - 3);
@@ -26,6 +34,10 @@ class FundDetails extends Component {
         var sixMonthsBackDate = today;
 
         today = new Date();
+        today.setMonth(today.getMonth() - 9);
+        var nineMonthsBackDate = today;
+
+        today = new Date();
         today.setFullYear(today.getFullYear() - 1);
         var oneYearBackDate = today;
 
@@ -33,9 +45,12 @@ class FundDetails extends Component {
         return [
             1,
             this.getDateDifference(today, oneWeekBackDate),
+            this.getDateDifference(today, twoWeekBackDate),
             this.getDateDifference(today, oneMonthBackDate),
+            this.getDateDifference(today, twoMonthBackDate),
             this.getDateDifference(today, threeMonthsBackDate),
             this.getDateDifference(today, sixMonthsBackDate),
+            this.getDateDifference(today, nineMonthsBackDate),
             this.getDateDifference(today, oneYearBackDate),
         ]
     }
@@ -70,7 +85,7 @@ class FundDetails extends Component {
         .catch(err => console.log(err));
     }
     render() {
-        let content = (<tr><td colSpan={8}>Loading...!!!</td></tr>);
+        let content = (<tr><td colSpan={11}>Loading...!!!</td></tr>);
 
         if(this.state.data && this.state.data.length > 0)
         {

@@ -15,9 +15,9 @@ class MFDashboard extends Component {
         fetch(apiLink)
         .then(response => response.json())
         .then(response => {
-            response = response.filter(eachFund => eachFund.schemeName.indexOf("SBI") === 0)
+            response = response.filter(eachFund => eachFund.schemeName.toUpperCase().indexOf(this.props.mfName) === 0)
             .filter(eachFund => eachFund.schemeName.toUpperCase().indexOf("GROWTH") > -1)
-            .filter(eachFund => eachFund.schemeName.toUpperCase().indexOf("REGULAR") > -1)
+            .filter(eachFund => eachFund.schemeName.toUpperCase().indexOf("DIRECT") > -1)
             .filter(eachFund => eachFund.schemeName.toUpperCase().indexOf("DEBT") === -1)
             .filter(eachFund => eachFund.schemeName.toUpperCase().indexOf("MATURITY") === -1)
             .filter(eachFund => eachFund.schemeName.toUpperCase().indexOf("SERIES") === -1);
@@ -39,9 +39,12 @@ class MFDashboard extends Component {
                         <th><nobr>Scheme Name</nobr></th>
                         <th>1D</th>
                         <th>7D</th>
+                        <th>15D</th>
                         <th>1M</th>
+                        <th>2M</th>
                         <th>3M</th>
                         <th>6M</th>
+                        <th>9M</th>
                         <th>1Y</th>
                     </tr>
                 </thead>
