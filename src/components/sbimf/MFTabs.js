@@ -11,6 +11,9 @@ const BSEDayTabs = () => (
       <Tab>ICICI</Tab>
       <Tab>KOTAK</Tab>
       <Tab>AXIS</Tab>
+      <Tab>TATA</Tab>
+      <Tab>MAHINDRA</Tab>
+      <Tab>NIPPON</Tab>
     </TabList>
 
     <TabPanel>
@@ -27,6 +30,15 @@ const BSEDayTabs = () => (
     </TabPanel>
     <TabPanel>
       <MFDashboard mfName="AXIS"/>
+    </TabPanel>
+    <TabPanel>
+      <MFDashboard mfName="TATA"/>
+    </TabPanel>
+    <TabPanel>
+      <MFDashboard mfName="MAHINDRA"/>
+    </TabPanel>
+    <TabPanel>
+      <MFDashboard mfName="NIPPON"/>
     </TabPanel>
   </Tabs>
 );
