@@ -14,7 +14,7 @@ class FundDetails extends Component {
         var oneWeekBackDate = today;
 
         today = new Date();
-        today.setMonth(today.getDate() - 15);
+        today.setDate(today.getDate() - 15);
         var twoWeekBackDate = today;
 
         today = new Date();
