@@ -1,5 +1,4 @@
 import React, {Component} from 'react';
-import TableGrid from '../grid/TableGrid';
 import IndexDetails from './IndexDetails';
 class BSEStocks extends Component {
     constructor(props){
@@ -7,17 +6,7 @@ class BSEStocks extends Component {
         this.state = {
             indices : ['AllCap'],
             loaded : false,
-            data : new Map(),
-            colDefs : [
-                { field: 'scripname', sortable : true },
-                { field: 'prevdayclose', sortable : true },
-                { field: 'openrate', sortable : true },
-                { field: 'latest_val', sortable : true },
-                { field: 'lowrate', sortable : true },
-                { field: 'highrate', sortable : true },
-                { field: 'change_val', sortable : true },
-                { field: 'change_percent', sortable : true }
-            ]
+            data : new Map()
         }
     }
 
@@ -53,19 +42,28 @@ class BSEStocks extends Component {
         if(this.state.loaded) {
             const unsortedArray = Array.from(this.state.data.entries());
             sortedArray = unsortedArray.sort(([key1, value1], [key2, value2]) => key1.localeCompare(key2));
-            sortedArray.forEach(eachIndexData => {
-                eachIndexData = eachIndexData[1];
-                const {ltradert, change_percent, change_val, trend} = eachIndexData;
-                eachIndexData["latest_val"] = parseFloat(ltradert);
-                eachIndexData["change_percent"] = parseFloat(change_percent);
-                eachIndexData["color"] = trend === "+" ? "green" : "red";
-            });
-            sortedArray = sortedArray.map(([eachIndex, eachIndexData]) => eachIndexData);
         }
-
         return !this.state.loaded ?<div>Loading ...!!!</div> : 
         (
-            <TableGrid colDefs = {this.state.colDefs} rowData = {sortedArray}/>
+            <table border="1" style={{borderCollapse:'collapse'}}>
+                <thead>
+                    <tr>
+                        <th><nobr>Stock</nobr></th>
+                        <th><nobr>Previous Close</nobr></th>
+                        <th><nobr>Opened At</nobr></th>
+                        <th><nobr>Current Value</nobr></th>
+                        <th><nobr>Low Value</nobr></th>
+                        <th><nobr>High Value</nobr></th>
+                        <th><nobr>Change</nobr></th>
+                        <th><nobr>Change %</nobr></th>
+                    </tr>
+                </thead>
+                <tbody>
+                {
+                    sortedArray.map(([eachIndex, eachIndexData]) => <IndexDetails key={eachIndex} indexData={eachIndexData}/>)
+                }
+                </tbody>
+            </table>
         );
     }
 }
