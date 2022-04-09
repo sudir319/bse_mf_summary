@@ -16,7 +16,7 @@ const TableGrid = ({rowData, colDefs}) => {
         params.api.sizeColumnsToFit();
       }
    return (
-       <div className="ag-theme-alpine" style={{ width: '100%', height: '100%;' }}>
+       <div className="ag-theme-alpine" style={{height: 50 + rowData.length * 21 , width: 1000}}>
            <AgGridReact
                getRowStyle={getRowStyle}
                onGridReady={onGridReady}

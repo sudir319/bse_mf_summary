@@ -1,6 +1,5 @@
 import React, {Component} from 'react';
 import TableGrid from '../grid/TableGrid';
-import IndexDetails from './IndexDetails';
 class BSEStocks extends Component {
     constructor(props){
         super(props);
@@ -30,7 +29,6 @@ class BSEStocks extends Component {
     componentDidMount() {
         if(!this.state.loaded) {
             this.state.indices.map(eachIndex => {
-                console.log(eachIndex);
                 var encodedIndex = ("S%26P BSE " + eachIndex).replace(/ /g, '+');
                 var apiLink = "https://api.bseindia.com/BseIndiaAPI/api/GetMktData/w?ordcol=TT&strType=index&strfilter=" + encodedIndex;
                 fetch(apiLink)
