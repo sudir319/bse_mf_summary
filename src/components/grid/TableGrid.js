@@ -6,10 +6,7 @@ import 'ag-grid-community/dist/styles/ag-theme-alpine.css';
 
 const TableGrid = ({rowData, colDefs}) => {
     const getRowStyle = params => {
-        if (params["data"]["trend"] === "+") {
-            return { color: 'green' };
-        }
-        return {color: 'red'}
+        return {color: params["data"]["color"]}
     };
     const onGridReady = params => {
         params.api.setRowData(rowData);
