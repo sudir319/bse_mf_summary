@@ -68,7 +68,7 @@ class BSEStocks extends Component {
         }
         else { 
             filteredArray = this.state.dataArray
-                .filter(eachData => eachData["index_code"].includes(this.state.selectedIndex));
+            .filter(eachData => eachData["index_code"].includes(this.state.selectedIndex));
         }
 
         return !this.state.loaded ?<div>Loading ...!!!</div> : 
@@ -76,14 +76,11 @@ class BSEStocks extends Component {
             <div>
                 <div>Index : <select defaultValue={this.state.selectedIndex} onChange={(event) => this.setSelectedIndex(event)}>
                 {
-                    this.state.differentIndices.map(eachIndex => 
-                        <option
-                            key = {eachIndex} 
-                        >{eachIndex}</option>
-                    )
+                    this.state.differentIndices.map(eachIndex => <option key = {eachIndex}>{eachIndex}</option>)
                 }
                 </select>
-                {filteredArray.length}</div>
+                &nbsp;&nbsp;&nbsp;&nbsp;
+                Stock Count : {filteredArray.length}</div>
                 <TableGrid colDefs = {this.state.colDefs} rowData = {filteredArray}/>
             </div>
         );
