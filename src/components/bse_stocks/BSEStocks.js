@@ -4,9 +4,10 @@ class BSEStocks extends Component {
     constructor(props){
         super(props);
         this.state = {
-            indices : ['AllCap'],
             loaded : false,
-            data : new Map(),
+            dataArray : null,
+            selectedIndex: 'S&P BSE AllCap',
+            differentIndices : null,
             colDefs : [
                 { field: 'scripname', sortable : true, filter: "agTextColumnFilter" },
                 { field: 'prevdayclose', sortable : true },
@@ -20,50 +21,71 @@ class BSEStocks extends Component {
         }
     }
 
-    addData = indexData => {
-        if(!this.state.data.get(indexData["scripname"])) {
-            this.state.data.set(indexData["scripname"], indexData);
-        }
+    setSelectedIndex = e => {
+        this.setState({selectedIndex : e.target.value});
     }
 
     componentDidMount() {
         if(!this.state.loaded) {
-            this.state.indices.map(eachIndex => {
-                var encodedIndex = ("S%26P BSE " + eachIndex).replace(/ /g, '+');
-                var apiLink = "https://api.bseindia.com/BseIndiaAPI/api/GetMktData/w?ordcol=TT&strType=index&strfilter=" + encodedIndex;
-                fetch(apiLink)
-                .then(response => response.json())
-                .then(response => response["Table"])
-                .then(response => {
-                    response.forEach(eachIndexData => this.addData(eachIndexData));
-                    this.setState({loaded : true});
-                })
-                .catch(err => {
-                    console.log(err)
-                    //this.setState({data: null, error: true});
+            var encodedIndex = ("S%26P BSE AllCap").replace(/ /g, '+');
+            var apiLink = "https://api.bseindia.com/BseIndiaAPI/api/GetMktData/w?ordcol=TT&strType=index&strfilter=" + encodedIndex;
+            fetch(apiLink)
+            .then(response => response.json())
+            .then(response => response["Table"])
+            .then(response => {
+                const differentIndices = [];
+                let dataArray = response;
+                dataArray.forEach(eachIndexData => {
+                    const {ltradert, change_percent, change_val} = eachIndexData;
+                    eachIndexData["latest_val"] = parseFloat(ltradert);
+                    eachIndexData["change_percent"] = parseFloat(change_percent);
+                    eachIndexData["color"] = change_val >= 0 ? "green" : "red";
+
+                    const indices = eachIndexData["index_code"].split(",");
+                    indices.forEach(eachIndex => {
+                        eachIndex = eachIndex.substring(1, eachIndex.length - 1);
+                        if(!differentIndices.includes(eachIndex)) {
+                            differentIndices.push(eachIndex);
+                        }
+                    })
                 });
+                dataArray = dataArray.sort((da1, da2) => 
+                    da1["scripname"].localeCompare(da2["scripname"]));
+
+                this.setState({loaded : true, differentIndices: differentIndices, dataArray: dataArray});
             })
+            .catch(err => {
+                console.log(err)
+                //this.setState({data: null, error: true});
+            });
         }
     }
 
     render() {
-        let sortedArray;
-        if(this.state.loaded) {
-            const unsortedArray = Array.from(this.state.data.entries());
-            sortedArray = unsortedArray.sort(([key1, value1], [key2, value2]) => key1.localeCompare(key2));
-            sortedArray.forEach(eachIndexData => {
-                eachIndexData = eachIndexData[1];
-                const {ltradert, change_percent, change_val} = eachIndexData;
-                eachIndexData["latest_val"] = parseFloat(ltradert);
-                eachIndexData["change_percent"] = parseFloat(change_percent);
-                eachIndexData["color"] = change_val >= 0 ? "green" : "red";
-            });
-            sortedArray = sortedArray.map(([eachIndex, eachIndexData]) => eachIndexData);
+        let filteredArray;
+        if(this.state.selectedIndex === 'S&P BSE AllCap') {
+            filteredArray = this.state.dataArray;
+        }
+        else { 
+            filteredArray = this.state.dataArray
+                .filter(eachData => eachData["index_code"].includes(this.state.selectedIndex));
         }
 
         return !this.state.loaded ?<div>Loading ...!!!</div> : 
         (
-            <TableGrid colDefs = {this.state.colDefs} rowData = {sortedArray}/>
+            <div>
+                <div>Index : <select defaultValue={this.state.selectedIndex} onChange={(event) => this.setSelectedIndex(event)}>
+                {
+                    this.state.differentIndices.map(eachIndex => 
+                        <option
+                            key = {eachIndex} 
+                        >{eachIndex}</option>
+                    )
+                }
+                </select>
+                {filteredArray.length}</div>
+                <TableGrid colDefs = {this.state.colDefs} rowData = {filteredArray}/>
+            </div>
         );
     }
 }
