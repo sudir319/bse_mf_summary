@@ -9,14 +9,14 @@ class BSEStocks extends Component {
             selectedIndex: 'S&P BSE AllCap',
             differentIndices : null,
             colDefs : [
-                { field: 'scripname', sortable : true, filter: "agTextColumnFilter" },
-                { field: 'prevdayclose', sortable : true },
-                { field: 'openrate', sortable : true },
-                { field: 'latest_val', sortable : true },
-                { field: 'lowrate', sortable : true },
-                { field: 'highrate', sortable : true },
-                { field: 'change_val', sortable : true },
-                { field: 'change_percent', sortable : true, filter: "agNumberColumnFilter" }
+                { field: 'scripName', sortable : true, resizable: true, filter: "agTextColumnFilter" },
+                { field: 'prevDayClose', sortable : true },
+                { field: 'openValue', sortable : true },
+                { field: 'latestValue', sortable : true },
+                { field: 'lowValue', sortable : true },
+                { field: 'highValue', sortable : true },
+                { field: 'changeValue', sortable : true },
+                { field: 'changePercent', sortable : true, filter: "agNumberColumnFilter" }
             ]
         }
     }
@@ -24,6 +24,10 @@ class BSEStocks extends Component {
     setSelectedIndex = e => {
         this.setState({selectedIndex : e.target.value});
     }
+
+    getRowStyle = params => {
+        return {color: params["data"]["changeValue"]  >= 0 ? "green" : "red"}
+    };
 
     componentDidMount() {
         if(!this.state.loaded) {
@@ -34,12 +38,18 @@ class BSEStocks extends Component {
             .then(response => response["Table"])
             .then(response => {
                 const differentIndices = [];
-                let dataArray = response;
-                dataArray.forEach(eachIndexData => {
+                let dataArray = response.map(eachIndexData => {
+                    let eachData = {};
                     const {ltradert, change_percent, change_val} = eachIndexData;
-                    eachIndexData["latest_val"] = parseFloat(ltradert);
-                    eachIndexData["change_percent"] = parseFloat(change_percent);
-                    eachIndexData["color"] = change_val >= 0 ? "green" : "red";
+                    
+                    eachData["latestValue"] = parseFloat(ltradert);
+                    eachData["changePercent"] = parseFloat(change_percent);
+                    eachData["scripName"] = eachIndexData["scripname"];
+                    eachData["openValue"] = eachIndexData["openrate"];
+                    eachData["lowValue"] = eachIndexData["lowrate"];
+                    eachData["highValue"] = eachIndexData["highrate"];
+                    eachData["prevDayClose"] = eachIndexData["prevdayclose"];
+                    eachData["changeValue"] = eachIndexData["change_val"];
 
                     const indices = eachIndexData["index_code"].split(",");
                     indices.forEach(eachIndex => {
@@ -47,10 +57,13 @@ class BSEStocks extends Component {
                         if(!differentIndices.includes(eachIndex)) {
                             differentIndices.push(eachIndex);
                         }
-                    })
+                    });
+
+                    return eachData;
                 });
+
                 dataArray = dataArray.sort((da1, da2) => 
-                    da1["scripname"].localeCompare(da2["scripname"]));
+                    da1["scripName"].localeCompare(da2["scripName"]));
 
                 this.setState({loaded : true, differentIndices: differentIndices, dataArray: dataArray});
             })
@@ -81,7 +94,8 @@ class BSEStocks extends Component {
                 </select>
                 &nbsp;&nbsp;&nbsp;&nbsp;
                 Stock Count : {filteredArray.length}</div>
-                <TableGrid colDefs = {this.state.colDefs} rowData = {filteredArray}/>
+                <TableGrid colDefs = {this.state.colDefs} rowData = {filteredArray} 
+                    height = {50 + filteredArray.length * 21} width = {1000} getRowStyle = {this.getRowStyle}/>
             </div>
         );
     }

@@ -4,17 +4,15 @@ import { AgGridReact } from 'ag-grid-react';
 import 'ag-grid-community/dist/styles/ag-grid.css';
 import 'ag-grid-community/dist/styles/ag-theme-alpine.css';
 
-const TableGrid = ({rowData, colDefs}) => {
-    const getRowStyle = params => {
-        return {color: params["data"]["color"]}
-    };
+const TableGrid = ({rowData, colDefs, height, width, getRowStyle}) => {
     const onGridReady = params => {
         params.api.setRowData(rowData);
         params.api.sizeColumnsToFit();
-      }
-   return (
-       <div className="ag-theme-alpine" style={{height: 50 + rowData.length * 21 , width: 1000}}>
+    }
+    return (
+       <div className="ag-theme-alpine" style={{height: height , width: width}}>
            <AgGridReact
+               suppressFieldDotNotation = {false}
                getRowStyle={getRowStyle}
                onGridReady={onGridReady}
                rowData={rowData}
