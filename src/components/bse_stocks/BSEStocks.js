@@ -50,6 +50,7 @@ class BSEStocks extends Component {
                     eachData["highValue"] = eachIndexData["highrate"];
                     eachData["prevDayClose"] = eachIndexData["prevdayclose"];
                     eachData["changeValue"] = eachIndexData["change_val"];
+                    eachData["index_code"] = eachIndexData["index_code"];
 
                     const indices = eachIndexData["index_code"].split(",");
                     indices.forEach(eachIndex => {
@@ -84,20 +85,21 @@ class BSEStocks extends Component {
             .filter(eachData => eachData["index_code"].includes(this.state.selectedIndex));
         }
 
-        return !this.state.loaded ?<div>Loading ...!!!</div> : 
-        (
-            <div>
-                <div>Index : <select defaultValue={this.state.selectedIndex} onChange={(event) => this.setSelectedIndex(event)}>
-                {
-                    this.state.differentIndices.map(eachIndex => <option key = {eachIndex}>{eachIndex}</option>)
-                }
-                </select>
-                &nbsp;&nbsp;&nbsp;&nbsp;
-                Stock Count : {filteredArray.length}</div>
-                <TableGrid colDefs = {this.state.colDefs} rowData = {filteredArray} 
-                    height = {50 + filteredArray.length * 21} width = {1000} getRowStyle = {this.getRowStyle}/>
-            </div>
-        );
+        return this.state.error ? <div>Error...!!!</div> :
+            !this.state.loaded ?<div>Loading ...!!!</div> : 
+            (
+                <div>
+                    <div>Index : <select defaultValue={this.state.selectedIndex} onChange={(event) => this.setSelectedIndex(event)}>
+                    {
+                        this.state.differentIndices.map(eachIndex => <option key = {eachIndex}>{eachIndex}</option>)
+                    }
+                    </select>
+                    &nbsp;&nbsp;&nbsp;&nbsp;
+                    Stock Count : {filteredArray.length}</div>
+                    <TableGrid colDefs = {this.state.colDefs} rowData = {filteredArray} 
+                        height = {50 + filteredArray.length * 21} width = {1000} getRowStyle = {this.getRowStyle}/>
+                </div>
+            );
     }
 }
  
