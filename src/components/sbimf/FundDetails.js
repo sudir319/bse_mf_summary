@@ -91,7 +91,7 @@ class FundDetails extends Component {
         {
             content = this.state.data.map((eachData, index) => 
                 <td align={index === 1 ? "left" : "center"}>
-                    {index > 1 ? <font color = {eachData < 0 ? "red" : "green"}>{eachData}</font> : index == 1 ?<nobr>{eachData}</nobr> : eachData}
+                    {index > 1 ? <font color = {eachData < 0 ? "red" : "green"}>{eachData}</font> : index === 1 ?<nobr>{eachData}</nobr> : eachData}
                 </td> 
             );
             content = <tr key={this.state.data[1]}>{content}</tr>

@@ -10,7 +10,7 @@ class BSE_ETFs extends Component {
                 536960, 539517, 555555, 590099, 590107, 539313, 532985, 539487, 533719, 533408, 
                 537008, 539312, 537483, 590110, 590115, 590109
             ],
-            durations: ['7D', '15D', '1M', '3M', '6M', '9M', '1Y'],
+            durations: ['1D', '7D', '15D', '1M', '3M', '6M', '9M', '1Y'],
             colDefs: null,
             data : null, 
             loaded : false
@@ -21,6 +21,8 @@ class BSE_ETFs extends Component {
         var today = new Date();
         today.setHours(0, 0, 0, 0);
         switch(period) {
+            case '1D' : today.setDate(today.getDate() - 1);
+                        break;
             case '7D' : today.setDate(today.getDate() - 7);
                         break;
             case '15D' : today.setDate(today.getDate() - 15);
@@ -35,6 +37,7 @@ class BSE_ETFs extends Component {
                         break;
             case '1Y' : today.setFullYear(today.getFullYear() - 1);
                         break;
+            default   : break;
         }
 
         let neededData = this.getDataForDate(today, data);
@@ -47,7 +50,7 @@ class BSE_ETFs extends Component {
 
     getDataForDate = (dateValue, data) => {
         let requiredData = data.filter(eachData => dateValue.toString().includes(eachData["dttm"]));
-        if(!requiredData || requiredData.length == 0) {
+        if(!requiredData || requiredData.length === 0) {
             dateValue.setDate(dateValue.getDate() + 1);
             requiredData = this.getDataForDate(dateValue, data);
         }
@@ -55,28 +58,37 @@ class BSE_ETFs extends Component {
     }
     
     getCellStyle = params => {
-        return {color: params.value >= 0 ? "green" : "red"};
+        var data = params["data"];
+        var col = params["colDef"]["field"].substring(0, 2);
+        return {color: data["latestValue"] >= data[col] ? "green" : "red"};
     };
 
     componentDidMount() {
+        let latestDataArray = [];
         let allIndexChangeData = [];
         this.state.indexCodes.forEach(eachIndex => {
+            var latestDataLink = "https://api.bseindia.com/BseIndiaAPI/api/StockReachGraph/w?scripcode=" + eachIndex + "&flag=0&fromdate=&todate=&seriesid=";
+            fetch(latestDataLink)
+            .then(response => response.json())
+            .then(response => {
+                latestDataArray[response["Scripname"]] = response["CurrVal"];
+            });
             var apiLink = "https://api.bseindia.com/BseIndiaAPI/api/StockReachGraph/w?scripcode=" + eachIndex + "&flag=12M&fromdate=&todate=&seriesid=";
             fetch(apiLink)
             .then(response => response.json())
             .then(response => {
                 let dataArray = JSON.parse(response["Data"]);
-                let latestData = parseFloat(dataArray[dataArray.length - 1]["vale1"]);
+                let latestData = parseFloat(latestDataArray[response["Scripname"]]).toFixed(2);
                 let colDefs = [];
                 let dataObject = {};
 
                 dataObject["fundId"] = eachIndex;
                 dataObject["fund"] = response["Scripname"];
-                dataObject["1D"] = latestData;
+                dataObject["latestValue"] = latestData;
 
                 colDefs.push({ field: 'fundId', sortable : true});
                 colDefs.push({ field: 'fund', sortable : true, filter: "agTextColumnFilter", resizable: true});
-                colDefs.push({ field: '1D', sortable : true });
+                colDefs.push({ field: 'latestValue', sortable : true });
 
                 this.state.durations.forEach(eachDuration => {
                     var oldData = parseFloat(this.getOldData(dataArray, eachDuration));

@@ -40,7 +40,7 @@ class BSEStocks extends Component {
                 const differentIndices = [];
                 let dataArray = response.map(eachIndexData => {
                     let eachData = {};
-                    const {ltradert, change_percent, change_val} = eachIndexData;
+                    const {ltradert, change_percent} = eachIndexData;
                     
                     eachData["latestValue"] = parseFloat(ltradert);
                     eachData["changePercent"] = parseFloat(change_percent);

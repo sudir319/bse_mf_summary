@@ -4,8 +4,9 @@ class BSEIndices extends Component {
     constructor(props){
         super(props);
         this.state = {
+            categories : [1, 2, 3, 4, 5, 6],
             indexCodes : [16, 98, 99, 22, 100, 81, 82, 23, 102, 103, 104, 105, 17, 87, 93, 95, 94, 113, 88, 89, 90, 83, 91, 84, 92, 85, 96, 97, 42, 53, 25, 27, 35, 37, 69, 67, 45, 111, 79, 86, 80, 44, 109, 108, 110, 107, 106, 72, 76, 47, 48, 101, 77, 75],
-            // indexCodes : [16],
+            //indexCodes : [16, 98, 99, 22, 100],
             indexNames : {
                 16: "BSE SENSEX", 98:	"BSE SENSEX 50", 99: "BSE SENSEX Next 50", 22: "BSE 100",
                 100: "BSE Bharat 22 Index", 81: "BSE MidCap", 82:	"BSE SmallCap", 23: "BSE 200",
@@ -24,7 +25,7 @@ class BSEIndices extends Component {
                 76: "BSE SME IPO", 47: "BSE DOLLEX 30", 65: "BSE DOLLEX 100", 48: "BSE DOLLEX 200",
                 101: "BSE 100 ESG Index", 77: "BSE CARBONEX", 75: "BSE GREENEX"
             },
-            durations: ['7D', '15D', '1M', '3M', '6M', '9M', '1Y'],
+            durations: ['1D', '7D', '15D', '1M', '3M', '6M', '9M', '1Y'],
             colDefs: null,
             data : null, 
             loaded : false
@@ -35,6 +36,8 @@ class BSEIndices extends Component {
         var today = new Date();
         today.setHours(0, 0, 0, 0);
         switch(period) {
+            case '1D' : today.setDate(today.getDate() - 1);
+                        break;
             case '7D' : today.setDate(today.getDate() - 7);
                         break;
             case '15D' : today.setDate(today.getDate() - 15);
@@ -49,6 +52,7 @@ class BSEIndices extends Component {
                         break;
             case '1Y' : today.setFullYear(today.getFullYear() - 1);
                         break;
+            default   : break;
         }
 
         let neededData = this.getDataForDate(today, data);
@@ -61,7 +65,7 @@ class BSEIndices extends Component {
 
     getDataForDate = (dateValue, data) => {
         let requiredData = data.filter(eachData => dateValue.toString().includes(eachData["date"]));
-        if(!requiredData || requiredData.length == 0) {
+        if(!requiredData || requiredData.length === 0) {
             dateValue.setDate(dateValue.getDate() + 1);
             requiredData = this.getDataForDate(dateValue, data);
         }
@@ -69,28 +73,44 @@ class BSEIndices extends Component {
     }
     
     getCellStyle = params => {
-        return {color: params.value >= 0 ? "green" : "red"};
+        var data = params["data"];
+        var col = params["colDef"]["field"].substring(0, 2);
+        return {color: data["latestValue"] >= data[col] ? "green" : "red"};
     };
 
     componentDidMount() {
         let allIndexChangeData = [];
+        let realTimeData = {};
+
+        this.state.categories.forEach(eachCategory => {
+            var apiLink = "https://api.bseindia.com/BseIndiaAPI/api/MktCapBoard/w?cat=" + eachCategory + "&type=2";
+            fetch(apiLink)
+            .then(response => response.json())
+            .then(response => response["RealTime"])
+            .then(response => {
+                response.forEach(eachResponse => {
+                    realTimeData[eachResponse["ScripFlagCode"]] = eachResponse["Curvalue"];
+                });
+            });
+        });
+
         this.state.indexCodes.forEach(eachIndex => {
             var apiLink = "https://api.bseindia.com/BseIndiaAPI/api/SensexGraphData/w?index=" + eachIndex + "&flag=12M&sector=&seriesid=R&frd=null&tod=null";
             fetch(apiLink)
             .then(response => response.json())
             .then(response => JSON.parse(response.substr(response.indexOf("#@#") + 3)))
             .then(response => {
-                let latestData = parseFloat(response[response.length - 1]["value"]);
+                let latestData = realTimeData[eachIndex];
                 let colDefs = [];
                 let dataObject = {};
 
                 dataObject["indexId"] = eachIndex;
                 dataObject["index"] = this.state.indexNames[eachIndex];
-                dataObject["1D"] = latestData;
+                dataObject["latestValue"] = latestData;
 
                 colDefs.push({ field: 'indexId', sortable : true});
                 colDefs.push({ field: 'index', sortable : true, filter: "agTextColumnFilter", resizable: true});
-                colDefs.push({ field: '1D', sortable : true });
+                colDefs.push({ field: 'latestValue', sortable : true });
 
                 this.state.durations.forEach(eachDuration => {
                     var oldData = parseFloat(this.getOldData(response, eachDuration));
