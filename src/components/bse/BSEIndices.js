@@ -5,8 +5,6 @@ class BSEIndices extends Component {
         super(props);
         this.state = {
             categories : [1, 2, 3, 4, 5, 6],
-            indexCodes : [16, 98, 99, 22, 100, 81, 82, 23, 102, 103, 104, 105, 17, 87, 93, 95, 94, 113, 88, 89, 90, 83, 91, 84, 92, 85, 96, 97, 42, 53, 25, 27, 35, 37, 69, 67, 45, 111, 79, 86, 80, 44, 109, 108, 110, 107, 106, 72, 76, 47, 48, 101, 77, 75],
-            //indexCodes : [16, 98, 99, 22, 100],
             indexNames : {
                 16: "BSE SENSEX", 98:	"BSE SENSEX 50", 99: "BSE SENSEX Next 50", 22: "BSE 100",
                 100: "BSE Bharat 22 Index", 81: "BSE MidCap", 82:	"BSE SmallCap", 23: "BSE 200",
@@ -80,68 +78,70 @@ class BSEIndices extends Component {
 
     componentDidMount() {
         let allIndexChangeData = [];
-        let realTimeData = {};
-
+        let eachIndex;
+        let noOfIndices = 0;
         this.state.categories.forEach(eachCategory => {
             var apiLink = "https://api.bseindia.com/BseIndiaAPI/api/MktCapBoard/w?cat=" + eachCategory + "&type=2";
             fetch(apiLink)
             .then(response => response.json())
+            .then(response => {
+                return response;
+            })
             .then(response => response["RealTime"])
             .then(response => {
+                noOfIndices += response.length;
                 response.forEach(eachResponse => {
-                    realTimeData[eachResponse["ScripFlagCode"]] = eachResponse["Curvalue"];
+                    var apiDataLink = "https://api.bseindia.com/BseIndiaAPI/api/SensexGraphData/w?index=" + eachResponse["ScripFlagCode"] + "&flag=12M&sector=&seriesid=R&frd=null&tod=null";
+                    fetch(apiDataLink)
+                    .then(response => response.json())
+                    .then(response => JSON.parse(response.substr(response.indexOf("#@#") + 3)))
+                    .then(response => {
+                        //console.log(response);
+                        let latestData = eachResponse["Curvalue"];
+                        let colDefs = [];
+                        let dataObject = {};
+        
+                        eachIndex = eachResponse["ScripFlagCode"];
+                        dataObject["indexId"] = eachIndex;
+                        dataObject["index"] = this.state.indexNames[eachIndex];
+                        dataObject["latestValue"] = latestData;
+        
+                        colDefs.push({ field: 'indexId', sortable : true});
+                        colDefs.push({ field: 'index', sortable : true, filter: "agTextColumnFilter", resizable: true});
+                        colDefs.push({ field: 'latestValue', sortable : true });
+                        
+                        if(response.length > 0) {
+                            this.state.durations.forEach(eachDuration => {
+                                var oldData = parseFloat(this.getOldData(response, eachDuration));
+                                var oldDataChange = parseFloat(latestData - oldData).toFixed(2);
+                                var oldDataChangePer = parseFloat((oldDataChange) * 100 / oldData).toFixed(2);
+            
+                                colDefs.push({ field: eachDuration, sortable : true, cellStyle: this.getCellStyle });
+                                colDefs.push({ field: eachDuration + 'Chg', sortable : true, cellStyle: this.getCellStyle });
+                                colDefs.push({ field: eachDuration + 'Chg%', sortable : true, cellStyle: this.getCellStyle });
+            
+                                dataObject[eachDuration] = oldData;
+                                dataObject[eachDuration + "Chg"] = parseFloat(oldDataChange);
+                                dataObject[eachDuration + "Chg%"] = parseFloat(oldDataChangePer);
+                            })
+                        }
+                        
+                        allIndexChangeData.push(dataObject);
+                        if(allIndexChangeData.length === noOfIndices) {
+                            this.setState({colDefs : colDefs, data: allIndexChangeData, loaded: true});
+                        }
+                    })       
                 });
             });
         });
-
-        this.state.indexCodes.forEach(eachIndex => {
-            var apiLink = "https://api.bseindia.com/BseIndiaAPI/api/SensexGraphData/w?index=" + eachIndex + "&flag=12M&sector=&seriesid=R&frd=null&tod=null";
-            fetch(apiLink)
-            .then(response => response.json())
-            .then(response => JSON.parse(response.substr(response.indexOf("#@#") + 3)))
-            .then(response => {
-                let latestData = realTimeData[eachIndex];
-                let colDefs = [];
-                let dataObject = {};
-
-                dataObject["indexId"] = eachIndex;
-                dataObject["index"] = this.state.indexNames[eachIndex];
-                dataObject["latestValue"] = latestData;
-
-                colDefs.push({ field: 'indexId', sortable : true});
-                colDefs.push({ field: 'index', sortable : true, filter: "agTextColumnFilter", resizable: true});
-                colDefs.push({ field: 'latestValue', sortable : true });
-
-                this.state.durations.forEach(eachDuration => {
-                    var oldData = parseFloat(this.getOldData(response, eachDuration));
-                    var oldDataChange = parseFloat(latestData - oldData).toFixed(2);
-                    var oldDataChangePer = parseFloat((oldDataChange) * 100 / oldData).toFixed(2);
-
-                    colDefs.push({ field: eachDuration, sortable : true, cellStyle: this.getCellStyle });
-                    colDefs.push({ field: eachDuration + 'Chg', sortable : true, cellStyle: this.getCellStyle });
-                    colDefs.push({ field: eachDuration + 'Chg%', sortable : true, cellStyle: this.getCellStyle });
-
-                    dataObject[eachDuration] = oldData;
-                    dataObject[eachDuration + "Chg"] = parseFloat(oldDataChange);
-                    dataObject[eachDuration + "Chg%"] = parseFloat(oldDataChangePer);
-                })
-                
-                allIndexChangeData.push(dataObject);
-                if(allIndexChangeData.length === this.state.indexCodes.length) {
-                    this.setState({colDefs : colDefs, data: allIndexChangeData, loaded: true});
-                }
-            })
-            .catch(err => {
-                console.log(err)
-                this.setState({data: null, error: true});
-            });
-        })
     }
+
     render() {
         return this.state.error ? <div>Error...!!!</div> :
             !this.state.loaded ? <div>Loading...!!!</div> : 
                 <TableGrid colDefs = {this.state.colDefs} rowData = {this.state.data}
-                height = {45 + this.state.data.length * 42} width = {2500} getCellStyle = {this.getCellStyle}/>
+                height = {45 + this.state.data.length * 42} width = {2500} 
+                getCellStyle = {this.getCellStyle}/>
     }
 }
  
