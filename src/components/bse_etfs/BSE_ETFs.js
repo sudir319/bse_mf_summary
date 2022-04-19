@@ -64,54 +64,52 @@ class BSE_ETFs extends Component {
     };
 
     componentDidMount() {
-        let latestDataArray = [];
         let allIndexChangeData = [];
         this.state.indexCodes.forEach(eachIndex => {
             var latestDataLink = "https://api.bseindia.com/BseIndiaAPI/api/StockReachGraph/w?scripcode=" + eachIndex + "&flag=0&fromdate=&todate=&seriesid=";
             fetch(latestDataLink)
             .then(response => response.json())
             .then(response => {
-                latestDataArray[response["Scripname"]] = response["CurrVal"];
-            });
-            var apiLink = "https://api.bseindia.com/BseIndiaAPI/api/StockReachGraph/w?scripcode=" + eachIndex + "&flag=12M&fromdate=&todate=&seriesid=";
-            fetch(apiLink)
-            .then(response => response.json())
-            .then(response => {
-                let dataArray = JSON.parse(response["Data"]);
-                let latestData = parseFloat(latestDataArray[response["Scripname"]]).toFixed(2);
-                let colDefs = [];
-                let dataObject = {};
-
-                dataObject["fundId"] = eachIndex;
-                dataObject["fund"] = response["Scripname"];
-                dataObject["latestValue"] = latestData;
-
-                colDefs.push({ field: 'fundId', sortable : true});
-                colDefs.push({ field: 'fund', sortable : true, filter: "agTextColumnFilter", resizable: true});
-                colDefs.push({ field: 'latestValue', sortable : true });
-
-                this.state.durations.forEach(eachDuration => {
-                    var oldData = parseFloat(this.getOldData(dataArray, eachDuration));
-                    var oldDataChange = parseFloat(latestData - oldData).toFixed(2);
-                    var oldDataChangePer = parseFloat((oldDataChange) * 100 / oldData).toFixed(2);
-
-                    colDefs.push({ field: eachDuration, sortable : true, cellStyle: this.getCellStyle });
-                    colDefs.push({ field: eachDuration + 'Chg', sortable : true, cellStyle: this.getCellStyle });
-                    colDefs.push({ field: eachDuration + 'Chg%', sortable : true, cellStyle: this.getCellStyle });
-
-                    dataObject[eachDuration] = oldData;
-                    dataObject[eachDuration + "Chg"] = parseFloat(oldDataChange);
-                    dataObject[eachDuration + "Chg%"] = parseFloat(oldDataChangePer);
+                let latestData = parseFloat(response["CurrVal"]).toFixed(2);
+                let apiLink = "https://api.bseindia.com/BseIndiaAPI/api/StockReachGraph/w?scripcode=" + eachIndex + "&flag=12M&fromdate=&todate=&seriesid=";
+                fetch(apiLink)
+                .then(response => response.json())
+                .then(response => {
+                    let dataArray = JSON.parse(response["Data"]);
+                    let colDefs = [];
+                    let dataObject = {};
+    
+                    dataObject["fundId"] = eachIndex;
+                    dataObject["fund"] = response["Scripname"];
+                    dataObject["latestValue"] = latestData;
+    
+                    colDefs.push({ field: 'fundId', sortable : true});
+                    colDefs.push({ field: 'fund', sortable : true, filter: "agTextColumnFilter", resizable: true});
+                    colDefs.push({ field: 'latestValue', sortable : true });
+    
+                    this.state.durations.forEach(eachDuration => {
+                        let oldData = parseFloat(this.getOldData(dataArray, eachDuration));
+                        let oldDataChange = parseFloat(latestData - oldData).toFixed(2);
+                        let oldDataChangePer = parseFloat((oldDataChange) * 100 / oldData).toFixed(2);
+    
+                        colDefs.push({ field: eachDuration, sortable : true, cellStyle: this.getCellStyle });
+                        colDefs.push({ field: eachDuration + 'Chg', sortable : true, cellStyle: this.getCellStyle });
+                        colDefs.push({ field: eachDuration + 'Chg%', sortable : true, cellStyle: this.getCellStyle });
+    
+                        dataObject[eachDuration] = oldData;
+                        dataObject[eachDuration + "Chg"] = parseFloat(oldDataChange);
+                        dataObject[eachDuration + "Chg%"] = parseFloat(oldDataChangePer);
+                    })
+                    
+                    allIndexChangeData.push(dataObject);
+                    if(allIndexChangeData.length === this.state.indexCodes.length) {
+                        this.setState({colDefs : colDefs, data: allIndexChangeData, loaded: true});
+                    }
                 })
-                
-                allIndexChangeData.push(dataObject);
-                if(allIndexChangeData.length === this.state.indexCodes.length) {
-                    this.setState({colDefs : colDefs, data: allIndexChangeData, loaded: true});
-                }
-            })
-            .catch(err => {
-                console.log(err)
-                this.setState({data: null, error: true});
+                .catch(err => {
+                    console.log(err)
+                    this.setState({data: null, error: true});
+                });   
             });
         })
     }
