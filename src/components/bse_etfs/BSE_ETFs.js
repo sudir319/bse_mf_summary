@@ -117,7 +117,6 @@ class BSE_ETFs extends Component {
         return this.state.error ? <div>Error...!!!</div> :
             !this.state.loaded ? <div>Loading...!!!</div> : 
                 <TableGrid colDefs = {this.state.colDefs} rowData = {this.state.data}
-                height = {45 + this.state.data.length * 42} 
                 width = {2500} getCellStyle = {this.getCellStyle}/>
     }
 }

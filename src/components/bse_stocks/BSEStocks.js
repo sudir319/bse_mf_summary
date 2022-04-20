@@ -6,7 +6,11 @@ class BSEStocks extends Component {
         this.state = {
             loaded : false,
             dataArray : null,
+            selectedSign: null,
             selectedIndex: 'S&P BSE AllCap',
+            selectedRange : null,
+            differentSigns : ["All", "+ve", "-ve"],
+            differentRanges : ["All", "0 - 10", "10 - 50", "50 - 100", "100 - 500", "500 - 1000", "1000 - 5000", "5000 - 10000", "> 10000"],
             differentIndices : null,
             colDefs : [
                 { field: 'scripName', sortable : true, resizable: true, filter: "agTextColumnFilter" },
@@ -16,7 +20,9 @@ class BSEStocks extends Component {
                 { field: 'lowValue', sortable : true },
                 { field: 'highValue', sortable : true },
                 { field: 'changeValue', sortable : true },
-                { field: 'changePercent', sortable : true, filter: "agNumberColumnFilter" }
+                { field: 'changePercent', sortable : true, filter: "agNumberColumnFilter" },
+                { field: 'sign', filter: "agTextColumnFilter"},
+                { field: 'range', filter: "agTextColumnFilter"}
             ]
         }
     }
@@ -25,9 +31,50 @@ class BSEStocks extends Component {
         this.setState({selectedIndex : e.target.value});
     }
 
+    setSelectedRange = e => {
+        this.setState({selectedRange : e.target.value});
+    }
+
+    setSelectedSign = e => {
+        this.setState({selectedSign : e.target.value});
+    }
+
     getRowStyle = params => {
         return {color: params["data"]["changeValue"]  >= 0 ? "green" : "red"}
     };
+
+    getRangeValue = latestValue => {
+        let rangeStr = "";
+        if(latestValue > 0 && latestValue <= 10.0) {
+            rangeStr = "0 - 10";
+        }
+        else if(latestValue > 10.0 && latestValue <= 50.0) {
+            rangeStr = "10 - 50";
+        }
+        else if(latestValue > 50.0 && latestValue <= 100.0) {
+            rangeStr = "50 - 100";
+        }
+        else if(latestValue > 100.0 && latestValue <= 500.0) {
+            rangeStr = "100 - 500";
+        }
+        else if(latestValue > 500.0 && latestValue <= 1000.0) {
+            rangeStr = "500 - 1000";
+        }
+        else if(latestValue > 1000.0 && latestValue <= 5000.0) {
+            rangeStr = "1000 - 5000";
+        }
+        else if(latestValue > 5000.0 && latestValue <= 10000.0) {
+            rangeStr = "5000 - 10000";
+        }
+        else if(latestValue > 10000.0) {
+            rangeStr = "> 10000";
+        }
+        else {
+            rangeStr = "NONE";
+        }
+
+        return rangeStr;
+    }
 
     componentDidMount() {
         if(!this.state.loaded) {
@@ -51,6 +98,8 @@ class BSEStocks extends Component {
                     eachData["prevDayClose"] = eachIndexData["prevdayclose"];
                     eachData["changeValue"] = eachIndexData["change_val"];
                     eachData["index_code"] = eachIndexData["index_code"];
+                    eachData["sign"] = eachIndexData["change_val"] >= 0.0 ? "+ve" : "-ve";
+                    eachData["range"] = this.getRangeValue(parseFloat(ltradert));
 
                     const indices = eachIndexData["index_code"].split(",");
                     indices.forEach(eachIndex => {
@@ -63,8 +112,7 @@ class BSEStocks extends Component {
                     return eachData;
                 });
 
-                dataArray = dataArray.sort((da1, da2) => 
-                    da1["scripName"].localeCompare(da2["scripName"]));
+                dataArray = dataArray.sort((da1, da2) => da1["scripName"].localeCompare(da2["scripName"]));
 
                 this.setState({loaded : true, differentIndices: differentIndices, dataArray: dataArray});
             })
@@ -85,6 +133,15 @@ class BSEStocks extends Component {
             .filter(eachData => eachData["index_code"].includes(this.state.selectedIndex));
         }
 
+        if(this.state.selectedSign && this.state.selectedSign !== "All") {
+            filteredArray = filteredArray
+            .filter(eachData => eachData["sign"] === this.state.selectedSign);
+        }
+        if(this.state.selectedRange && this.state.selectedRange !== "All") {
+            filteredArray = filteredArray
+            .filter(eachData => eachData["range"] === this.state.selectedRange);
+        }
+
         return this.state.error ? <div>Error...!!!</div> :
             !this.state.loaded ?<div>Loading ...!!!</div> : 
             (
@@ -95,9 +152,21 @@ class BSEStocks extends Component {
                     }
                     </select>
                     &nbsp;&nbsp;&nbsp;&nbsp;
+                    Range : <select defaultValue={this.state.selectedRange} onChange={(event) => this.setSelectedRange(event)}>
+                    {
+                        this.state.differentRanges.map(eachRange => <option key = {eachRange}>{eachRange}</option>)
+                    }
+                    </select>
+                    &nbsp;&nbsp;&nbsp;&nbsp;
+                    Sign : <select defaultValue={this.state.selectedSign} onChange={(event) => this.setSelectedSign(event)}>
+                    {
+                        this.state.differentSigns.map(eachSign => <option key = {eachSign}>{eachSign}</option>)
+                    }
+                    </select>
+                    &nbsp;&nbsp;&nbsp;&nbsp;
                     Stock Count : {filteredArray.length}</div>
                     <TableGrid colDefs = {this.state.colDefs} rowData = {filteredArray} 
-                        height = {50 + filteredArray.length * 21} width = {1000} getRowStyle = {this.getRowStyle}/>
+                        width = {1300} getRowStyle = {this.getRowStyle}/>
                 </div>
             );
     }
