@@ -3,7 +3,7 @@ import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 import 'react-tabs/style/react-tabs.css';
 import MFDashboard from './MFDashboard';
 
-const BSEDayTabs = () => (
+const MFTabs = () => (
   <Tabs>
     <TabList>
       <Tab>SBI</Tab>
@@ -43,4 +43,4 @@ const BSEDayTabs = () => (
   </Tabs>
 );
 
-export default BSEDayTabs;
+export default MFTabs;

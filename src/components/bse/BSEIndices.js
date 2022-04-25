@@ -12,10 +12,10 @@ class BSEIndices extends Component {
         }
     }
 
-    getOldData = (data, period) => {
+    getOldData = (data, interval) => {
         var today = new Date();
         today.setHours(0, 0, 0, 0);
-        switch(period) {
+        switch(interval) {
             case '1D' : today.setDate(today.getDate() - 1);
                         break;
             case '7D' : today.setDate(today.getDate() - 7);
@@ -35,7 +35,7 @@ class BSEIndices extends Component {
             default   : break;
         }
 
-        let neededData = this.getDataForDate(today, data);
+        let neededData = this.getDataForDate(today, data, interval);
         if(neededData && neededData.length > 0) {
             return neededData[0]["value"];
         }
@@ -43,11 +43,16 @@ class BSEIndices extends Component {
         return null;
     }
 
-    getDataForDate = (dateValue, data) => {
+    getDataForDate = (dateValue, data, interval) => {
         let requiredData = data.filter(eachData => dateValue.toString().includes(eachData["date"]));
         if(!requiredData || requiredData.length === 0) {
-            dateValue.setDate(dateValue.getDate() + 1);
-            requiredData = this.getDataForDate(dateValue, data);
+            if(interval === '1D'){
+                dateValue.setDate(dateValue.getDate() - 1);
+            }
+            else {
+                dateValue.setDate(dateValue.getDate() + 1);
+            }
+            requiredData = this.getDataForDate(dateValue, data, interval);
         }
         return requiredData;
     }
